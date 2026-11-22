@@ -29,9 +29,15 @@ const app = express();
 const server = http.createServer(app);
 
 // Socket.IO configuration
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map(u => u.trim())
+  : ['*'];
+
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || '*',
+    origin: allowedOrigins.length === 1 && allowedOrigins[0] === '*'
+      ? '*'
+      : allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
   },
