@@ -64,6 +64,7 @@ export const register = async (req, res) => {
       message: 'Account created successfully. Welcome to NariSafe.',
     });
   } catch (error) {
+    console.error('[Register Error]', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -78,6 +79,16 @@ export const login = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Please provide both email and password.',
+      });
+    }
+
+    // Check if DB is connected
+    const mongoose = (await import('mongoose')).default;
+    if (mongoose.connection.readyState !== 1) {
+      console.error('[Login] MongoDB not connected. readyState:', mongoose.connection.readyState);
+      return res.status(503).json({
+        success: false,
+        message: 'Database is connecting, please try again in a few seconds.',
       });
     }
 
@@ -106,6 +117,7 @@ export const login = async (req, res) => {
       message: `Welcome back, ${user.name}!`,
     });
   } catch (error) {
+    console.error('[Login Error]', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
